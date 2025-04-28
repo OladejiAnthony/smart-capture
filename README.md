@@ -41,10 +41,7 @@ style folder - contains necessary styling for the app.
 
 ### 1. Clone the repository
 
-```bash
-git clone https://github.com/knoy00/Ghana-Card-Auto-Capture.git
-cd Ghana-Card-Auto-Capture
-```
+
 
 ### 2. Install dependencies
 
@@ -109,12 +106,6 @@ Detection is slow sometimes when confidence thresholds are too high.
 - ✅ Clear detection overlays on canvas
 - ✅ Error handling for model, webcam, and canvas issues
 - ✅ Lightweight, fast, and mobile-responsive
-
----
-
-## 👨‍💻 Author
-
-Built by **[Knoy]**
 
 ---
 
