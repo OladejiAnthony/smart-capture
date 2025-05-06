@@ -1,4 +1,4 @@
-//Card Capture Function
+//smart-capture/src/app/utilities/captureUtilities.js
 export const captureCard = (
   detection,
   videoRef,
@@ -7,63 +7,90 @@ export const captureCard = (
   setCaptureMessage,
   setSubmitEnabled
 ) => {
+  console.log("Starting high-quality card capture process...");
   const { box } = detection;
   const video = videoRef.current;
   const canvas = captureRef.current;
-  const context = canvas.getContext("2d");
+  const context = canvas.getContext("2d", { willReadFrequently: true });
 
-  //Ghana Card Aspect Ratio
-  const aspectRatio = 1.585;
+  // Increase the output resolution while maintaining aspect ratio
+  const outputWidth = 1280; // Increased from 640
+  const outputHeight = Math.round(outputWidth / 1.585); // Ghana Card aspect ratio
 
-  //Adjust the detected box match the Ghana Card aspect ratio
-  let adjustedHeight = box.width / aspectRatio;
-  let adjustedY = box.y + (box.height - adjustedHeight) / 2;
+  // Set canvas to higher resolution
+  canvas.width = outputWidth;
+  canvas.height = outputHeight;
 
-  //Clamp adjustedY safely
-  adjustedY = Math.max(
-    0,
-    Math.min(adjustedY, video.videoHeight - adjustedHeight)
-  );
-
-  //Add margin
-  const margin = 0.05;
+  // Calculate crop area with more precise margins
+  const margin = 0.03; // Reduced from 0.05 for less wasted space
   const marginX = box.width * margin;
-  const marginY = adjustedHeight * margin;
+  const marginY = (box.width / 1.585) * margin;
+
   const cropX = Math.max(0, box.x - marginX);
-  const cropY = Math.max(0, adjustedY - marginY);
+  const cropY = Math.max(0, box.y - marginY);
   const cropWidth = Math.min(box.width + 2 * marginX, video.videoWidth - cropX);
   const cropHeight = Math.min(
-    adjustedHeight + 2 * marginY,
+    box.width / 1.585 + 2 * marginY,
     video.videoHeight - cropY
   );
 
-  //Resize captured canvas
-  canvas.width = 640;
-  canvas.height = Math.round(640 / aspectRatio);
+  // Draw the captured image
+  context.drawImage(
+    video,
+    cropX,
+    cropY,
+    cropWidth,
+    cropHeight, // source rectangle
+    0,
+    0,
+    outputWidth,
+    outputHeight // destination rectangle
+  );
 
-  //Clear canvas
-  context.clearRect(0, 0, canvas.width, canvas.height);
+  // Apply sharpening filter
+  sharpenCanvas(canvas, context, 0.5); // Moderate sharpening
 
-  try {
-    //Draw cropped image to canvas
-    context.drawImage(
-      video,
-      cropX,
-      cropY,
-      cropWidth,
-      cropHeight,
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
-    setStatus("Card captured successfully.");
-    setCaptureMessage("Card captured successfully.");
-    setSubmitEnabled(true);
-  } catch (error) {
-    console.error("Error capturing card:", error);
-    setStatus("Error capturing card.");
-    setCaptureMessage("Error capturing card.");
-    setSubmitEnabled(false);
+  console.log("High-quality card captured successfully");
+  setStatus("High-quality card captured successfully.");
+  setCaptureMessage("Card captured successfully.");
+  setSubmitEnabled(true);
+};
+
+// Add this new function to apply sharpening
+const sharpenCanvas = (canvas, ctx, amount = 0.5) => {
+  // Create a temporary canvas for processing
+  const tempCanvas = document.createElement("canvas");
+  tempCanvas.width = canvas.width;
+  tempCanvas.height = canvas.height;
+  const tempCtx = tempCanvas.getContext("2d");
+
+  // Apply sharpening using convolution
+  tempCtx.drawImage(canvas, 0, 0);
+  const imageData = tempCtx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imageData.data;
+
+  // Simple sharpening kernel
+  for (let i = 0; i < data.length; i += 4) {
+    if (i > 4 * canvas.width && i < data.length - 4 * canvas.width) {
+      // Apply sharpening to each channel (R, G, B)
+      for (let j = 0; j < 3; j++) {
+        const current = data[i + j];
+        const above = data[i + j - 4 * canvas.width];
+        const below = data[i + j + 4 * canvas.width];
+        const left = data[i + j - 4];
+        const right = data[i + j + 4];
+
+        // Sharpened value
+        data[i + j] = Math.max(
+          0,
+          Math.min(
+            255,
+            current * (1 + 4 * amount) - (above + below + left + right) * amount
+          )
+        );
+      }
+    }
   }
+
+  ctx.putImageData(imageData, 0, 0);
 };

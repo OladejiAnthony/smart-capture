@@ -1,27 +1,41 @@
-//drawUtilities.js
+//smart-capture/src/app/utilities/drawUtilities.js
 export const drawDetections = (detections, canvasRef, isInvalid = false) => {
+  console.log("Drawing detections on canvas...");
   const ctx = canvasRef.current.getContext("2d");
-  if (!detections || detections.length === 0) return;
+  if (!detections || detections.length === 0) {
+    console.log("No detections to draw");
+    return;
+  }
 
   const detection = detections[0];
   const { box, confidence, alignmentScore } = detection;
+  console.log(
+    `Drawing detection: confidence=${confidence}, alignment=${alignmentScore}`
+  );
 
   // Determine color based on validity
   let color;
   if (isInvalid) {
-    color = "red"; // Invalid card
+    color = "red";
+    console.log("Drawing as invalid card");
   } else if (alignmentScore > 0.8) {
-    color = "lime"; // Excellent alignment
+    color = "lime";
+    console.log("Drawing as excellent alignment");
   } else if (alignmentScore > 0.5) {
-    color = "yellow"; // Good alignment
+    color = "yellow";
+    console.log("Drawing as good alignment");
   } else {
-    color = "orange"; // Poor alignment
+    color = "orange";
+    console.log("Drawing as poor alignment");
   }
 
   // Draw bounding box
   ctx.strokeStyle = color;
   ctx.lineWidth = 4;
   ctx.strokeRect(box.x, box.y, box.width, box.height);
+  console.log(
+    `Drawn bounding box at x=${box.x}, y=${box.y}, width=${box.width}, height=${box.height}`
+  );
 
   // Draw label background
   const text = isInvalid
@@ -29,6 +43,8 @@ export const drawDetections = (detections, canvasRef, isInvalid = false) => {
     : `Ghana Card: ${Math.round(confidence * 100)}% (Align: ${Math.round(
         alignmentScore * 100
       )}%)`;
+
+  console.log(`Drawing label: ${text}`);
 
   ctx.font = "bold 16px Arial";
   const textWidth = ctx.measureText(text).width + 10;
