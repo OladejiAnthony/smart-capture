@@ -7,7 +7,7 @@ export const captureCard = (
   setCaptureMessage,
   setSubmitEnabled
 ) => {
-  console.log("Starting high-quality card capture process...");
+  console.log("[Smart-Capture] Starting high-quality card capture process...");
   const { box } = detection;
   const video = videoRef.current;
   const canvas = captureRef.current;
@@ -50,10 +50,19 @@ export const captureCard = (
   // Apply sharpening filter
   sharpenCanvas(canvas, context, 0.5); // Moderate sharpening
 
-  console.log("High-quality card captured successfully");
+  console.log("[Smart-Capture] High-quality card captured successfully");
   setStatus("High-quality card captured successfully.");
   setCaptureMessage("Card captured successfully.");
   setSubmitEnabled(true);
+
+  // Automatically submit if in iframe context
+  if (window.self !== window.top) {
+    console.log("[Smart-Capture] In iframe context, auto-submitting...");
+    setTimeout(() => {
+      const event = new Event("click");
+      document.querySelector(".send-btn")?.dispatchEvent(event);
+    }, 1000);
+  }
 };
 
 // Add this new function to apply sharpening
