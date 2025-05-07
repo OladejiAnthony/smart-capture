@@ -1,4 +1,4 @@
-// /app/page.js
+//smart-capture/app/page.js
 "use client";
 import { Suspense } from "react";
 import GhanaCardScanner from "../components/GhanaCardScanner";
