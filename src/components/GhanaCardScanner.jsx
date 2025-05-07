@@ -5,6 +5,9 @@ import { captureCard } from "@/utilities/captureUtilities";
 import { preprocessFrame, processYoloOutput } from "@/utilities/tfUtilities";
 import { drawDetections } from "@/utilities/drawUtilities";
 import { useSearchParams } from "next/navigation";
+import Autheo from "../../src/assest/Autheo_this.png";
+import Image from "next/image";
+import Link from "next/link";
 import "../style/style.css";
 
 export default function GhanaCardScanner() {
@@ -474,47 +477,92 @@ export default function GhanaCardScanner() {
   };
 
   return (
-    <div className="container">
-      <h1>Ghana Card Auto-Capture</h1>
+    <div className="min-h-screen bg-white text-[#245C94] poppins p-4 md:p-8">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-3xl md:text-4xl font-bold mb-4 text-[#245C94] text-center">
+          Ghana Card Auto-Capture
+        </h1>
 
-      <div className="status-container">
-        <div className="status" id="status">
-          {status}
-        </div>
-        <div className="model-status" id="model-status">
-          {modelStatus}
-        </div>
-      </div>
-
-      <div className="camera-container">
-        <div id="video-container">
-          <video id="webcam" ref={videoRef} />
-          <canvas id="detection-canvas" ref={canvasRef} />
-          <div className="guide-overlay">
-            <div className="card-guide"></div>
+        <div className="status-container mb-6">
+          <div className="status text-center font-medium" id="status">
+            {status}
           </div>
-        </div>
-
-        {invalidCardDetected && (
-          <div className="invalid-card-warning">
-            Invalid card detected. Please use a Ghana Card.
-          </div>
-        )}
-      </div>
-
-      <div className="result-container">
-        <h2>Captured Card</h2>
-        <canvas id="captured-card" ref={captureRef} />
-
-        <div className="capture-info">
-          <div id="capture-status">{captureMessage}</div>
-          <button
-            className="btn send-btn"
-            disabled={!submitEnabled}
-            onClick={sendToBackend}
+          <div
+            className="model-status text-sm text-center text-[#245C94]/80"
+            id="model-status"
           >
-            Submit
-          </button>
+            {modelStatus}
+          </div>
+        </div>
+
+        <div className="camera-container mb-8">
+          <div id="video-container" className="relative">
+            <video id="webcam" ref={videoRef} className="w-full rounded-lg" />
+            <canvas
+              id="detection-canvas"
+              ref={canvasRef}
+              className="absolute top-0 left-0 w-full h-full"
+            />
+            <div className="guide-overlay">
+              <div className="card-guide"></div>
+            </div>
+          </div>
+
+          {invalidCardDetected && (
+            <div className="invalid-card-warning text-red-500 text-center mt-2">
+              Invalid card detected. Please use a Ghana Card.
+            </div>
+          )}
+        </div>
+
+        <div className="result-container mb-8">
+          <h2 className="text-xl font-bold text-[#245C94] mb-4 text-center">
+            Captured Card
+          </h2>
+          <div className="flex justify-center mb-4">
+            <canvas
+              id="captured-card"
+              ref={captureRef}
+              className="border-2 border-gray-200 rounded-lg"
+            />
+          </div>
+          {/*Submit button */}
+          <div className="capture-info text-center">
+            <div id="capture-status" className="text-[#245C94] mb-4">
+              {captureMessage}
+            </div>
+            <button
+              className={`submit-button ${!submitEnabled ? "disabled" : ""}`}
+              disabled={!submitEnabled}
+              onClick={sendToBackend}
+            >
+              Submit
+            </button>
+          </div>
+        </div>
+
+        {/* Added Footer section */}
+        <div className="footer">
+          <p className="footer-text">
+            By proceeding, you consent to processing your personal data
+            according to our{" "}
+            <Link
+              href="/https://videokyc-frontend2.vercel.app/consent"
+              className="footer-link"
+            >
+              Consent to Personal Data Processing Document
+            </Link>
+          </p>
+          <div className="footer-powered-by">
+            <p className="footer-powered-by-text">Powered by</p>
+            <Image
+              src={Autheo}
+              alt="Autheo"
+              width={100}
+              height={100}
+              className="footer-logo"
+            />
+          </div>
         </div>
       </div>
     </div>
