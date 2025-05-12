@@ -442,6 +442,7 @@ export default function GhanaCardScanner() {
           console.log(
             "[Smart-Capture] Notifying parent window of successful capture"
           );
+          // Add this to the sendToBackend function
           window.parent.postMessage(
             {
               type: "GHANA_CARD_CAPTURE_SUCCESS",
@@ -449,6 +450,7 @@ export default function GhanaCardScanner() {
                 verification_id,
                 verification_type,
                 card_data: data,
+                card_image: data.image, // or whatever field contains the image
               },
             },
             "*"
@@ -487,12 +489,12 @@ export default function GhanaCardScanner() {
           <div className="status text-center font-medium" id="status">
             {status}
           </div>
-          <div
+          {/* <div
             className="model-status text-sm text-center text-[#245C94]/80"
             id="model-status"
           >
             {modelStatus}
-          </div>
+          </div> */}
         </div>
 
         <div className="camera-container mb-8">
