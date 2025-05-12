@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import * as faceapi from "@vladmandic/face-api";
-import Autheo from "../../src/assest/Autheo_this.png";
+import Autheo from "../assest/Autheo_this.png";
 import Link from "next/link";
 
 const SelfieCapture = () => {

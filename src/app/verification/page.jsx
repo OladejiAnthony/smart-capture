@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import GhanaCardScanner from "@/components/GhanaCardScanner";
 import SelfieCapture from "@/components/SelfieCapture";
 import Image from "next/image";
-import Autheo from "../../src/assest/Autheo_this.png";
+import Autheo from "../../assest/Autheo_this.png";
 
 const VerificationPage = () => {
   const router = useRouter();
