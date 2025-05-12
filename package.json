@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.6",
+    "@tensorflow/tfjs": "^4.0.0",
+    "@tensorflow/tfjs-tflite": "^0.0.1-alpha.8",
     "@vladmandic/face-api": "^1.7.15",
     "next": "15.3.1",
     "react": "^19.0.0",

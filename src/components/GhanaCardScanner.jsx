@@ -9,14 +9,16 @@ import Autheo from "../../src/assest/Autheo_this.png";
 import Image from "next/image";
 import Link from "next/link";
 import "../style/style.css";
+import * as tf from "@tensorflow/tfjs";
 
 export default function GhanaCardScanner() {
   console.log("[Smart-Capture] Initializing GhanaCardScanner component");
 
   // Get URL parameters
   const searchParams = useSearchParams();
-  const verification_id = searchParams.get("verification_id");
-  const verification_type = searchParams.get("verification_type");
+  const verification_id = searchParams.get("verification_id") || "default_id";
+  const verification_type =
+    searchParams.get("verification_type") || "default_type";
 
   console.log(`[Smart-Capture] Received verification_id: ${verification_id}`);
   console.log(
@@ -79,41 +81,37 @@ export default function GhanaCardScanner() {
     console.log("[Smart-Capture] Initializing TensorFlow.js...");
     const init = async () => {
       setStatus("Checking TensorFlow.js...");
-      if (!window.tf || !window.tflite) {
-        console.error("[Smart-Capture] TensorFlow.js or TFLite not found");
-        setStatus("TensorFlow.js or TFLite not found");
-        return;
-      }
-
-      console.log(
-        "[Smart-Capture] TensorFlow.js detected, waiting for ready state..."
-      );
-      await tf.ready();
-      setStatus("Loading model...");
-      console.log("[Smart-Capture] TensorFlow.js ready, loading model...");
 
       try {
-        console.log(
-          "[Smart-Capture] Loading TFLite model from /model/autocapture.tflite"
+        // Load TFJS
+        await tf.ready();
+
+        // Dynamically import tfjs-tflite to avoid SSR issues
+        const tflite = await import("@tensorflow/tfjs-tflite");
+        await tflite.setWasmPath(
+          "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite@latest/dist/"
         );
+
+        setStatus("Loading model...");
         const loadedModel = await tflite.loadTFLiteModel(
           "/model/autocapture.tflite"
         );
         modelRef.current = loadedModel;
-
-        console.log("[Smart-Capture] Model loaded successfully");
-        setStatus("Model loaded successfully");
-        setModelStatus(
-          "Model loaded: YOLOv8 TFLite (model/autocapture.tflite)"
-        );
-
-        await startCamera();
+        setModelStatus("Model loaded successfully");
+        setStatus("Initializing camera...");
+        startCamera();
       } catch (err) {
-        console.error("[Smart-Capture] Error loading model:", err);
-        setStatus("Error loading model: " + err.message);
+        console.error("[Smart-Capture] Error initializing TensorFlow:", err);
+        setStatus("Error loading TensorFlow: " + err.message);
+        setModelStatus("Model loading failed");
       }
     };
     init();
+
+    return () => {
+      console.log("[Smart-Capture] Component unmounting, cleaning up...");
+      stopCamera();
+    };
   }, []);
 
   // Function to start the camera
